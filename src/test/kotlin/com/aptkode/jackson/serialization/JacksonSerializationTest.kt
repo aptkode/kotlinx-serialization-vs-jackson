@@ -1,11 +1,11 @@
 package com.aptkode.jackson.serialization
 
+import com.aptkode.model.Animal
+import com.aptkode.model.Cat
+import com.aptkode.model.Dog
 import com.aptkode.model.User
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import kotlinx.serialization.builtins.list
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -43,6 +43,27 @@ class JacksonSerializationTest {
         objectMapper.registerModule(KotlinModule())
         val users = objectMapper.readValue("""[{"name":"tom","age":21},{"name":"john","age":22}]""", Array<User>::class.java)
         assertEquals(2, users.size)
+    }
+
+    @Test
+    fun polymorphicSerializeTest() {
+        val objectMapper = ObjectMapper()
+        objectMapper.registerModule(KotlinModule())
+        val animals: List<Animal> = listOf(Cat(), Cat(), Dog())
+        val jsonString = objectMapper
+                .writerFor(objectMapper.typeFactory.constructCollectionType(List::class.java, Animal::class.java))
+                .writeValueAsString(animals)
+        assertEquals("""[{"type":"com.aptkode.model.Cat","sound":"meow","legs":4},{"type":"com.aptkode.model.Cat","sound":"meow","legs":4},{"type":"com.aptkode.model.Dog","sound":"Baw","legs":4}]""", jsonString)
+    }
+
+    @Test
+    fun polymorphicDeserializeTest() {
+        val objectMapper = ObjectMapper()
+        objectMapper.registerModule(KotlinModule())
+        val animals: Array<Animal> = objectMapper.readValue("""[{"type":"com.aptkode.model.Cat","sound":"meow","legs":4},{"type":"com.aptkode.model.Cat","sound":"meow","legs":4},{"type":"com.aptkode.model.Dog","sound":"Baw","legs":4}]""", Array<Animal>::class.java)
+        assertEquals(3, animals.size)
+        assertEquals("com.aptkode.model.Cat", animals[0].javaClass.typeName)
+        assertEquals("com.aptkode.model.Dog", animals[2].javaClass.typeName)
     }
 
 }
