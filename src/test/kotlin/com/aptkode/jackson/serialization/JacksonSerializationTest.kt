@@ -12,23 +12,23 @@ import kotlin.test.assertEquals
 class JacksonSerializationTest {
 
     @Test
-    fun serializeTest(){
+    fun serializeTest() {
         val objectMapper = ObjectMapper()
         val jsonString = objectMapper.writeValueAsString(User("tom", 21))
         assertEquals("""{"name":"tom","age":21}""", jsonString)
     }
 
     @Test
-    fun deserializeTest(){
+    fun deserializeTest() {
         val objectMapper = ObjectMapper()
         objectMapper.registerModule(KotlinModule())
         val (name, age) = objectMapper.readValue("""{"name":"john","age":22}""", User::class.java)
-        assertEquals("john",name)
-        assertEquals(22,age)
+        assertEquals("john", name)
+        assertEquals(22, age)
     }
 
     @Test
-    fun serializeListTest(){
+    fun serializeListTest() {
         val objectMapper = ObjectMapper()
         val jsonString = objectMapper.writeValueAsString(listOf(
                 User("tom", 21),
@@ -38,7 +38,7 @@ class JacksonSerializationTest {
     }
 
     @Test
-    fun deserializeListTest(){
+    fun deserializeListTest() {
         val objectMapper = ObjectMapper()
         objectMapper.registerModule(KotlinModule())
         val users = objectMapper.readValue("""[{"name":"tom","age":21},{"name":"john","age":22}]""", Array<User>::class.java)
